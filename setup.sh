@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 if [$# == 0 || $# > 1]; then
     echo "Description: Setup the dependencies necessary for latexflashcards"
     echo "Usage: $0 texmf-loc"
@@ -5,8 +7,10 @@ if [$# == 0 || $# > 1]; then
     exit 1
 fi
 
-home=pwd
+home="$(pwd)"
+echo "relocating and downloading to $1"
 cd $1
+echo "in $(pwd)"
 wget http://mirrors.ctan.org/macros/latex/contrib/conv-xkv.zip
 unzip conv-xkv.zip && rm conv-xkv.zip
 cd conv-xkv/ && pdflatex conv-xkv.ins
