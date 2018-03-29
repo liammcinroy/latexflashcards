@@ -4,6 +4,6 @@ This repo contains source for making Flashcards with LaTeX and the ecards packag
 
 ### Setup
 
-Install `texlive-full` and find the `texmf` directory on your drive, then run `sudo bash ./setup.sh <path/to/texmf>`
+Install `texlive-full` and find the `texmf` directory on your drive, then run `./setup.sh <path/to/texmf>`
 to install the necessary dependencies to generate electronic flashcards with LaTeX. 
 
