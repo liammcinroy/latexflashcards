@@ -23,3 +23,4 @@ wget http://mirrors.ctan.org/macros/latex/contrib/acrotex.zip
 unzip acrotex.zip && rm acrotex.zip
 cd acrotex/ && pdflatex acrotex.ins
 cd $home
+rm 1]
