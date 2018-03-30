@@ -8,6 +8,7 @@
 \usepackage[tight,rightpanel]{web} %,usetemplates,rightpanel,leftpanel
 \usepackage{exerquiz}
 \usepackage[nohints]{ecards}
+\usepackage{standalone}
 
 % Use these three to get a listing of all questions, hints, and answers; useful
 % for checking your work.
@@ -15,7 +16,7 @@
 %\usepackage[solutionsafter,proofing]{exerquiz}
 %\usepackage[memLogo,listing]{ecards}
 
-\input{stack.tex}
+\input{preamble}
 
 % begin Web commands
 \margins{.25in}{.25in}{24pt}{.25in} % left,right,top, bottom
@@ -87,6 +88,6 @@
 
 \useNoHints
 
-\stackContent
+\include{stack}
 
 \end{document}

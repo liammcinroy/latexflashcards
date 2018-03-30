@@ -72,10 +72,13 @@ def edit_logic(stack, save_filename):
     return stack
 
 
-def generate_cards_tex(stack):
+def generate_cards_tex(stack, folder_name):
     """Generates the tex for the cards in the stack
     """
-    content_tex = ''
+    content_tex = """\documentclass{standalone}
+
+\\begin{document}
+                  """
     for card_name, card_content in stack.items():
         if card_name[:2] == 'M:':
             continue
@@ -98,7 +101,7 @@ def generate_cards_tex(stack):
         else:
             full_q = card_content[1] + '\n' + \
                      '\\begin{multiChoice}{' + \
-                     str(len(card_content[2])) + '}'
+                     str(len(card_content[2])) + '}\n'
             perm = list(range(len(card_content[2])))
             random.shuffle(perm)
             for i in perm:
@@ -122,19 +125,20 @@ def generate_cards_tex(stack):
             content_tex += '\n' + card_tex
 
         content_tex += '\n'
-    return content_tex
+    content_tex += "\\end{document}"
+    with open(os.path.join(folder_name, "stack.tex"), "w") as tex_file:
+        tex_file.write(content_tex)
 
 
-def generate_tex(stack, file_name):
+def generate_tex(stack, folder_name):
     """Generates the tex for the given file and saves it
     """
-    with open(file_name, 'w') as tex_file:
+    with open(os.path.join(folder_name, 'preamble.tex'), 'w') as tex_file:
         tex_file.write('\\newcommand\\stackTitle{' +
                        stack['M:title'] + '}\n\n')
         tex_file.write('\\newcommand\\stackAuthor{' +
                        stack['M:author'] + '}\n\n')
-        tex_file.write('\\newcommand\\stackContent{' +
-                       generate_cards_tex(stack) + '}\n\n')
+    generate_cards_tex(stack, folder_name)
 
 
 def main():
@@ -148,7 +152,6 @@ def main():
 
     stack = {}
     save_stack_name = os.path.join(args.folder, 'stack.dat')
-    save_tex_name = os.path.join(args.folder, 'stack.tex')
 
     try:
         if args.mode == 'create':
@@ -175,7 +178,7 @@ def main():
     except KeyboardInterrupt:
         print('Exiting program.')
         if args.generate:
-            generate_tex(stack, save_tex_name)
+            generate_tex(stack, args.folder)
 
 
 if __name__ == '__main__':
