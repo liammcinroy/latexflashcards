@@ -1,0 +1,92 @@
+%
+% In this file, we test the nohints option and the \useHints
+%
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+% Use these three for onscreen presentation.
+\usepackage[tight,rightpanel]{web} %,usetemplates,rightpanel,leftpanel
+\usepackage{exerquiz}
+\usepackage[nohints]{ecards}
+
+% Use these three to get a listing of all questions, hints, and answers; useful
+% for checking your work.
+%\usepackage[forpaper,tight]{web} %  ,usetemplates
+%\usepackage[solutionsafter,proofing]{exerquiz}
+%\usepackage[memLogo,listing]{ecards}
+
+\input{stack.tex}
+
+% begin Web commands
+\margins{.25in}{.25in}{24pt}{.25in} % left,right,top, bottom
+\screensize{3.72in}{366.24bp}
+\author{\stackAuthor}
+\title{\stackTitle}
+
+\norevisionLabel
+
+\renewcommand\hproportionwebtitle{.9}
+
+\newcommand\aebLogo{\parbox{1.75in}{\large \textsl{\stackTitle}}}
+
+\makeatletter
+\ifecListing\else
+    \ifnum\@panelconfig>0\relax
+        \optionalPageMatter{\par\minimumskip\vspace{\stretch{1}}
+            \begin{center}
+            \fcolorbox{blue}{webyellow}{
+            \begin{minipage}{.85\linewidth}
+            \textbf{\textcolor{red}{Instructions:}}
+            Click on the \textcolor{webblue}{Begin} button to view the
+            first randomly selected card. Click on \textcolor{webblue}{FS} to view
+            the flash cards in full screen mode (works only outside a web browser). The
+            \textcolor{webblue}{Home} button returns to this page.
+            The \textcolor{webblue}{Close} button closes the document (use
+            outside a web browser).\par\smallskip
+            \end{minipage}}
+            \end{center}
+        }
+    \else
+        \optionalPageMatter{\par\minimumskip\vspace{\stretch{1}}
+            \begin{center}
+            \fcolorbox{blue}{webyellow}{
+            \begin{minipage}{.67\linewidth}
+            Click on the \textcolor{webblue}{Begin} button to view the
+            first randomly selected card.  Click  on
+            \textcolor{webblue}{FS} to put the viewer into full screen
+            mode (use outside a web browser). The check box on the
+            right toggles the delivery of the cards between random
+            and natural order; a check means random
+            order.\par\smallskip
+            \centering
+                \Begin\ \FullScreen\ \ToggleOrder
+            \end{minipage}}
+            \end{center}
+        }
+    \fi
+\fi
+
+% Don't use the University of Akron defaults
+\ecLogo{}
+\ecLogoLink{}
+\ecHomePage{}
+\textBgColor{white}
+\cardColor{white}
+\hintColor{white}
+\solnColor{white}
+
+\begin{document}
+
+\maketitle
+
+\ifecListing
+    \begin{center}\Large\bfseries
+        Listing of Questions, Hints, and Answers
+    \end{center}\bigskip
+\fi
+
+\useNoHints
+
+\stackContent
+
+\end{document}
