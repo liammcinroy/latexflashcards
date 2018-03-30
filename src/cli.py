@@ -149,6 +149,9 @@ def main():
     shutil.copyfile(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                  '..', 'latex', 'template', 'main.tex'),
                     os.path.join(args.folder, 'main.tex'))
+    shutil.copyfile(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                 '..', 'latex', 'template', 'printable.tex'),
+                    os.path.join(args.folder, 'printable.tex'))
 
     stack = {}
     save_stack_name = os.path.join(args.folder, 'stack.dat')
