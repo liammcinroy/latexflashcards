@@ -18,7 +18,7 @@ def parse_args():
                              'existing one.')
     parser.add_argument('folder', type=str,
                         help='The folder to place the generated files in')
-    parser.add_argument('-g', '--generate',
+    parser.add_argument('-g', '--generate', action='store_true',
                         help='Flag to generate a .tex file when done.')
     return parser.parse_args()
 
@@ -71,10 +71,46 @@ def edit_logic(stack, save_filename):
     return stack
 
 
+def generate_cards_tex(stack):
+    """Generates the tex for the cards in the stack
+    """
+    content_tex = ''
+    for card_name, card_content in stack.items():
+        if card_name[0:1] == 'M:':
+            continue
+
+        if not card_content[0]:
+            card_tex = """\\begin{{card}}
+  {0}
+  \\begin{{response}}
+    \\begin{{hint}}
+    \\end{{hint}}
+    \\begin{{answer}}
+      {1}
+    \\end{{answer}}
+  \\end{{response}}
+\\end{{card}}
+                       """.format(card_content[1], card_content[2][0])
+
+            content_tex += '\n' + card_tex
+
+        else:
+            raise NotImplementedError()
+
+        content_tex += '\n'
+    return content_tex
+
+
 def generate_tex(stack, file_name):
     """Generates the tex for the given file and saves it
     """
-    raise NotImplementedError()
+    with open(file_name, 'w') as tex_file:
+        tex_file.write('\\newcommand\\stackTitle{' +
+                       stack['M:title'] + '}\n\n')
+        tex_file.write('\\newcommand\\stackAuthor{' +
+                       stack['M:author'] + '}\n\n')
+        tex_file.write('\\newcommand\\stackContent{' +
+                       generate_cards_tex(stack) + '}\n\n')
 
 
 def main():
@@ -93,8 +129,8 @@ def main():
     try:
         if args.mode == 'create':
             stack = {}
-            input_stack_q(stack, 'M:title', 'What is the title of this stack?')
-            input_stack_q(stack, 'M:author', 'Who is the author of this stack?')
+            input_stack_q(stack, 'M:title', 'What is the title of the stack?')
+            input_stack_q(stack, 'M:author', 'Who is the author of the stack?')
             pickle.dump(stack, open(save_stack_name, 'wb'))
             print('You have created a new stack. After you create a new card, '
                   'then the stack will save to ', save_stack_name, '. Exit '
