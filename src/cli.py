@@ -1,6 +1,7 @@
 import argparse
-import pickle
+import random
 import os
+import pickle
 import shutil
 
 """
@@ -76,7 +77,7 @@ def generate_cards_tex(stack):
     """
     content_tex = ''
     for card_name, card_content in stack.items():
-        if card_name[0:1] == 'M:':
+        if card_name[:2] == 'M:':
             continue
 
         if not card_content[0]:
@@ -95,7 +96,30 @@ def generate_cards_tex(stack):
             content_tex += '\n' + card_tex
 
         else:
-            raise NotImplementedError()
+            full_q = card_content[1] + '\n' + \
+                     '\\begin{multiChoice}{' + \
+                     str(len(card_content[2])) + '}'
+            perm = list(range(len(card_content[2])))
+            random.shuffle(perm)
+            for i in perm:
+                full_q += '\Ans{0} {1} & '.format(str(int(i == 0)),
+                                                  card_content[2][i])
+            full_q = full_q[:-2] + '\n\\end{multiChoice}'
+
+            card_tex = """\\begin{{card}}
+  {0}
+  \\begin{{response}}
+    \\begin{{hint}}
+      {1}
+    \\end{{hint}}
+    \\begin{{answer}}
+      {2}
+    \\end{{answer}}
+  \\end{{response}}
+\\end{{card}}
+                       """.format(full_q, full_q, card_content[2][0])
+
+            content_tex += '\n' + card_tex
 
         content_tex += '\n'
     return content_tex
