@@ -36,23 +36,39 @@ def input_stack_q(stack, key, question):
     stack[key] = input(question + '\n')
 
 
-def add_card(stack, save_filename):
-    """Adds a notecard to the given stack and then saves the stack
+def edit_card(stack, card_name):
+    """Edits (a possibly new) card with name card_name
     """
-    raise NotImplementedError()
+    typ = input('\tModifying card ' + card_name + '. Is it a MC? (y/n)\n')
+    while typ != 'y' and typ != 'n':
+        typ = input('\tError: Not y/n input. Retry input')
 
-
-def edit_card(stack, card_name, save_filename):
-    """Edits a card in the given stack and name, then saves the stack
-    """
-    raise NotImplementedError()
+    if typ == 'y':
+        ques = input('\tUsing a MC card. What is the question?\n')
+        n_ans = int(input('\tHow many answers are there?\n'))
+        ans = []
+        ans.append(input('\tEnter the correct answer:\n'))
+        for _ in range(1, n_ans):
+            ans.append(input('\tEnter an incorrect answer:\n'))
+        stack[card_name] = [typ == 'y', ques, ans]
+    else:
+        front = input('\tNot a MC card. What is the front of the card?\n')
+        back = input('\tWhat is the back of the card?\n')
+        stack[card_name] = [typ == 'y', front, [back]]
+    return stack
 
 
 def edit_logic(stack, save_filename):
     """The editing logic of a particular stack. Called by both create
-    and edit modes.
+    and edit modes. Saves the stack at the end of editing.
     """
-    raise NotImplementedError()
+    card_name = input('Enter the name of the next card you\'d like to edit '
+                      'or create:\n')
+    if card_name in stack:
+        print('\t', card_name, ' already exists, editing it')
+    stack = edit_card(stack, card_name)
+    pickle.dump(stack, open(save_filename, 'wb'))
+    return stack
 
 
 def generate_tex(stack, file_name):
@@ -77,27 +93,27 @@ def main():
     try:
         if args.mode == 'create':
             stack = {}
-            input_stack_q(stack, 'title', 'What is the title of this stack?')
-            input_stack_q(stack, 'author', 'Who is the author of this stack?')
+            input_stack_q(stack, 'M:title', 'What is the title of this stack?')
+            input_stack_q(stack, 'M:author', 'Who is the author of this stack?')
             pickle.dump(stack, open(save_stack_name, 'wb'))
             print('You have created a new stack. After you create a new card, '
                   'then the stack will save to ', save_stack_name, '. Exit '
                   'at anytime to quit editing the stack.')
             while True:
-                edit_logic(stack, save_stack_name)
+                stack = edit_logic(stack, save_stack_name)
         elif args.mode == 'edit':
             if not os.path.exists(save_stack_name):
                 raise ValueError('The given file does not exist.')
             stack = load_stack(save_stack_name)
-            print('You have loaded ', stack['title'], '. After you create a '
+            print('You have loaded ', stack['M:title'], '. After you create a '
                   'new card, then the stack will save to ', save_stack_name,
                   '. Exit at anytime to quit editing the stack.')
             while True:
-                edit_logic(stack, save_stack_name)
+                stack = edit_logic(stack, save_stack_name)
         else:
             raise ValueError('Expected "create" or "edit" for mode')
     except KeyboardInterrupt:
-        print('Exiting program. If you chose to generate latex.')
+        print('Exiting program.')
         if args.generate:
             generate_tex(stack, save_tex_name)
 
