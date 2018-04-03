@@ -87,8 +87,6 @@ def generate_cards_tex(stack, folder_name):
             card_tex = """\\begin{{card}}
   {0}
   \\begin{{response}}
-    \\begin{{hint}}
-    \\end{{hint}}
     \\begin{{answer}}
       {1}
     \\end{{answer}}
