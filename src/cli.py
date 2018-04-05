@@ -21,6 +21,9 @@ def parse_args():
                         help='The folder to place the generated files in')
     parser.add_argument('-g', '--generate', action='store_true',
                         help='Flag to generate a .tex file when done.')
+    parser.add_argument('-d', '--display', action='store_true',
+                        help='Flag to determine whether the loaded stack is '
+                             'displayed prior to editing.')
     return parser.parse_args()
 
 
@@ -87,6 +90,8 @@ def generate_cards_tex(stack, folder_name):
             card_tex = """\\begin{{card}}
   {0}
   \\begin{{response}}
+    \\begin{{hint}}
+    \\end{{hint}}
     \\begin{{answer}}
       {1}
     \\end{{answer}}
@@ -131,12 +136,20 @@ def generate_cards_tex(stack, folder_name):
 def generate_tex(stack, folder_name):
     """Generates the tex for the given file and saves it
     """
-    with open(os.path.join(folder_name, 'preamble.tex'), 'w') as tex_file:
-        tex_file.write('\\newcommand\\stackTitle{' +
-                       stack['M:title'] + '}\n\n')
-        tex_file.write('\\newcommand\\stackAuthor{' +
-                       stack['M:author'] + '}\n\n')
+    if not os.path.exists(os.path.join(folder_name, 'preamble.tex')):
+        with open(os.path.join(folder_name, 'preamble.tex'), 'w') as tex_file:
+            tex_file.write('\\newcommand\\stackTitle{' +
+                           stack['M:title'] + '}\n\n')
+            tex_file.write('\\newcommand\\stackAuthor{' +
+                           stack['M:author'] + '}\n\n')
     generate_cards_tex(stack, folder_name)
+
+
+def display_stack(stack):
+    """Displays the stack in a nice way
+    """
+    for card_name, card_content in stack.items():
+        print(card_name, ':\n\t', card_content)
 
 
 def main():
@@ -169,6 +182,8 @@ def main():
             if not os.path.exists(save_stack_name):
                 raise ValueError('The given file does not exist.')
             stack = load_stack(save_stack_name)
+            if args.display:
+                display_stack(stack)
             print('You have loaded ', stack['M:title'], '. After you create a '
                   'new card, then the stack will save to ', save_stack_name,
                   '. Exit at anytime to quit editing the stack.')
