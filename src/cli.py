@@ -30,7 +30,11 @@ def parse_args():
 def load_stack(file_name):
     """Loads a notecard stack from the given file
     """
-    return pickle.load(open(file_name, 'rb'))
+    stack = pickle.load(open(file_name, 'rb'))
+    for card_name in stack:
+        if len(stack[card_name]) == 3:
+            stack[card_name].append('')
+    return stack
 
 
 def input_stack_q(stack, key, question):
@@ -54,7 +58,8 @@ def edit_card(stack, card_name):
         ans.append(input('\tEnter the correct answer:\n'))
         for _ in range(1, n_ans):
             ans.append(input('\tEnter an incorrect answer:\n'))
-        stack[card_name] = [typ == 'y', ques, ans]
+        explanation = input('\tEnter the explanation:\n')
+        stack[card_name] = [typ == 'y', ques, ans, explanation]
     else:
         front = input('\tNot a MC card. What is the front of the card?\n')
         back = input('\tWhat is the back of the card?\n')
@@ -69,8 +74,15 @@ def edit_logic(stack, save_filename):
     card_name = input('Enter the name of the next card you\'d like to edit '
                       'or create:\n')
     if card_name in stack:
-        print('\t', card_name, ' already exists, editing it')
-    stack = edit_card(stack, card_name)
+        print('\t', card_name, ' already exists and is ', stack[card_name])
+        idx = int(input('\tWhich index do you want to modify?\n'))
+        if idx == 1:
+            idx = int(input('\tWhich answer index do you want to modify?\n'))
+            stack[card_name][1][idx] = input('\tEnter the new answer:\n')
+        else:
+            stack[card_name][idx] = input('\tEnter the new value:\n')
+    else:
+        stack = edit_card(stack, card_name)
     pickle.dump(stack, open(save_filename, 'wb'))
     return stack
 
@@ -90,8 +102,6 @@ def generate_cards_tex(stack, folder_name):
             card_tex = """\\begin{{card}}
   {0}
   \\begin{{response}}
-    \\begin{{hint}}
-    \\end{{hint}}
     \\begin{{answer}}
       {1}
     \\end{{answer}}
@@ -102,7 +112,7 @@ def generate_cards_tex(stack, folder_name):
             content_tex += '\n' + card_tex
 
         else:
-            full_q = card_content[1] + '\n' + \
+            full_q = card_content[1] + '\n\\hspace{1cm}\n' + \
                      '\\begin{multiChoice}{' + \
                      str(len(card_content[2])) + '}\n'
             perm = list(range(len(card_content[2])))
@@ -110,20 +120,18 @@ def generate_cards_tex(stack, folder_name):
             for i in perm:
                 full_q += '\Ans{0} {1} & '.format(str(int(i == 0)),
                                                   card_content[2][i])
-            full_q = full_q[:-2] + '\n\\end{multiChoice}'
+            full_q = full_q[:-2] + '\n\\end{multiChoice}\n'
 
             card_tex = """\\begin{{card}}
   {0}
   \\begin{{response}}
-    \\begin{{hint}}
-      {1}
-    \\end{{hint}}
     \\begin{{answer}}
-      {2}
+      {1}
     \\end{{answer}}
   \\end{{response}}
 \\end{{card}}
-                       """.format(full_q, full_q, card_content[2][0])
+                       """.format(full_q, card_content[2][0] + '. ' +
+                                  card_content[3])
 
             content_tex += '\n' + card_tex
 
