@@ -34,6 +34,8 @@ def load_stack(file_name):
     for card_name in stack:
         if len(stack[card_name]) == 3:
             stack[card_name].append('')
+        if len(stack[card_name]) == 4:
+            stack[card_name].append([])
     return stack
 
 
@@ -49,7 +51,7 @@ def edit_card(stack, card_name):
     """
     typ = input('\tModifying card ' + card_name + '. Is it a MC? (y/n)\n')
     while typ != 'y' and typ != 'n':
-        typ = input('\tError: Not y/n input. Retry input')
+        typ = input('\tError: Not y/n input. Retry input\n')
 
     if typ == 'y':
         ques = input('\tUsing a MC card. What is the question?\n')
@@ -59,11 +61,15 @@ def edit_card(stack, card_name):
         for _ in range(1, n_ans):
             ans.append(input('\tEnter an incorrect answer:\n'))
         explanation = input('\tEnter the explanation:\n')
-        stack[card_name] = [typ == 'y', ques, ans, explanation]
+        order = []
+        ord_str = input('\tEnter the sequence of the index of answers:\n')
+        if len(ord_str) > 0:
+            order = [int(idx) for idx in ord_str.split(',')]
+        stack[card_name] = [typ == 'y', ques, ans, explanation, order]
     else:
         front = input('\tNot a MC card. What is the front of the card?\n')
         back = input('\tWhat is the back of the card?\n')
-        stack[card_name] = [typ == 'y', front, [back]]
+        stack[card_name] = [typ == 'y', front, [back], '', []]
     return stack
 
 
@@ -76,9 +82,15 @@ def edit_logic(stack, save_filename):
     if card_name in stack:
         print('\t', card_name, ' already exists and is ', stack[card_name])
         idx = int(input('\tWhich index do you want to modify?\n'))
-        if idx == 1:
+        if idx == 2:
             idx = int(input('\tWhich answer index do you want to modify?\n'))
-            stack[card_name][1][idx] = input('\tEnter the new answer:\n')
+            stack[card_name][2][idx] = input('\tEnter the new answer:\n')
+        elif idx == 4:
+            ord_str = input('\tEnter the new answer order sequence:\n')
+            if len(ord_str) == 0:
+                stack[card_name][4] = []
+            else:
+                stack[card_name][4] = [int(idx) for idx in ord_str.split(',')]
         else:
             stack[card_name][idx] = input('\tEnter the new value:\n')
     else:
@@ -116,7 +128,10 @@ def generate_cards_tex(stack, folder_name):
                      '\\begin{multiChoice}{' + \
                      str(len(card_content[2])) + '}\n'
             perm = list(range(len(card_content[2])))
-            random.shuffle(perm)
+            if len(card_content[4]) == 0:
+                random.shuffle(perm)
+            else:
+                perm = card_content[4]
             for i in perm:
                 full_q += '\Ans{0} {1} & '.format(str(int(i == 0)),
                                                   card_content[2][i])
