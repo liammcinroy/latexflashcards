@@ -3,6 +3,8 @@ import random
 import os
 import pickle
 import shutil
+from subprocess import run
+
 
 """
 This is the command line interface latexflashcards. It can either generate a
@@ -19,11 +21,16 @@ def parse_args():
                              'existing one.')
     parser.add_argument('folder', type=str,
                         help='The folder to place the generated files in')
-    parser.add_argument('-g', '--generate', action='store_true',
+    parser.add_argument('-t', '--generate_tex', action='store_true',
                         help='Flag to generate a .tex file when done.')
+    parser.add_argument('-g', '--generate_pdf', action='store_true',
+                        help='Flag to generate the main.pdf file when done. ')
     parser.add_argument('-d', '--display', action='store_true',
                         help='Flag to determine whether the loaded stack is '
                              'displayed prior to editing.')
+    parser.add_argument('-r', '--reorder', action='store_true',
+                        help='Flag whether to remove flashcard functionality '
+                             'and simply reorder the pdf pages.')
     return parser.parse_args()
 
 
@@ -168,6 +175,12 @@ def generate_tex(stack, folder_name):
     generate_cards_tex(stack, folder_name)
 
 
+def generate_pdf(stack, folder_name):
+    """Generates the pdf and reorders it for a tex
+    """
+    run('pdflatex {0}main.tex'.format(folder_name), shell=True)
+    run('pdflatex {0}printable.tex'.format(folder_name), shell=True)
+
 def display_stack(stack):
     """Displays the stack in a nice way
     """
@@ -216,9 +229,18 @@ def main():
             raise ValueError('Expected "create" or "edit" for mode')
     except KeyboardInterrupt:
         print('Exiting program.')
-        if args.generate:
+        if args.generate_tex:
             generate_tex(stack, args.folder)
-
+        if args.generate_pdf:
+            generate_tex(stack, args.folder)
+            generate_pdf(stack, args.folder)
+        if args.reorder:
+            n_questions = len(stack.keys()) - 2
+            page_order = '1 ' + ' '.join([str(2 + i) + ' ' 
+                                          + str(2 + i + n_questions)
+                                          for i in range(n_questions)])
+            run('pdftk {0}main.pdf cat {1} output {0}printable_main.pdf'
+                 .format(args.folder, page_order), shell=True)
 
 if __name__ == '__main__':
     main()
